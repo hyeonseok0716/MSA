@@ -21,6 +21,8 @@ ext {
 }
 
 dependencies {
+    testImplementation 'io.projectreactor:reactor-test'
+
     implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
 
     implementation project(':api')
