@@ -37,8 +37,19 @@ public class ReviewSummary {
     return content;
   }
 
-  public void setReviewId(int reviewId) { this.reviewId = reviewId; }
-  public void setAuthor(String author) { this.author = author; }
-  public void setSubject(String subject) { this.subject = subject; }
-  public void setContent(String content) { this.content = content; }
+  public void setReviewId(int reviewId) {
+    this.reviewId = reviewId;
+  }
+
+  public void setAuthor(String author) {
+    this.author = author;
+  }
+
+  public void setSubject(String subject) {
+    this.subject = subject;
+  }
+
+  public void setContent(String content) {
+    this.content = content;
+  }
 }

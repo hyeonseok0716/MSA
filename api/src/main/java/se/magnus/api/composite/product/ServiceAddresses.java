@@ -40,9 +40,4 @@ public class ServiceAddresses {
   public String getRec() {
     return rec;
   }
-
-  public void setCmp(String cmp) { this.cmp = cmp; }
-  public void setPro(String pro) { this.pro = pro; }
-  public void setRev(String rev) { this.rev = rev; }
-  public void setRec(String rec) { this.rec = rec; }
 }

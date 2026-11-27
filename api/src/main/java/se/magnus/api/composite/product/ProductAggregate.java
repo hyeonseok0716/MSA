@@ -59,10 +59,27 @@ public class ProductAggregate {
     return serviceAddresses;
   }
 
-  public void setProductId(int productId) { this.productId = productId; }
-  public void setName(String name) { this.name = name; }
-  public void setWeight(int weight) { this.weight = weight; }
-  public void setRecommendations(List<RecommendationSummary> recommendations) { this.recommendations = recommendations; }
-  public void setReviews(List<ReviewSummary> reviews) { this.reviews = reviews; }
-  public void setServiceAddresses(ServiceAddresses serviceAddresses) { this.serviceAddresses = serviceAddresses; }
+  public void setProductId(int productId) {
+    this.productId = productId;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setWeight(int weight) {
+    this.weight = weight;
+  }
+
+  public void setRecommendations(List<RecommendationSummary> recommendations) {
+    this.recommendations = recommendations;
+  }
+
+  public void setReviews(List<ReviewSummary> reviews) {
+    this.reviews = reviews;
+  }
+
+  public void setServiceAddresses(ServiceAddresses serviceAddresses) {
+    this.serviceAddresses = serviceAddresses;
+  }
 }

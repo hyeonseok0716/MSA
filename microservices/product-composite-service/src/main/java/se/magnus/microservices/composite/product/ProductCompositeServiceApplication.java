@@ -5,19 +5,21 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
-import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.json.JsonMapper;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 @SpringBootApplication
 @ComponentScan("se.magnus")
 public class ProductCompositeServiceApplication {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeServiceApplication.class);
 
   @Value("${api.common.version}")         String apiVersion;
   @Value("${api.common.title}")           String apiTitle;
@@ -32,7 +34,7 @@ public class ProductCompositeServiceApplication {
   @Value("${api.common.contact.email}")   String apiContactEmail;
 
   /**
-  * Available at http://$HOST:$PORT/openapi/swagger-ui.html
+  * Will exposed on $HOST:$PORT/swagger-ui.html
   *
   * @return the common OpenAPI documentation
   */
@@ -55,15 +57,21 @@ public class ProductCompositeServiceApplication {
         .url(apiExternalDocUrl));
   }
 
+  private final Integer threadPoolSize;
+  private final Integer taskQueueSize;
+
+  public ProductCompositeServiceApplication(
+    @Value("${app.threadPoolSize:10}") Integer threadPoolSize,
+    @Value("${app.taskQueueSize:100}") Integer taskQueueSize
+  ) {
+    this.threadPoolSize = threadPoolSize;
+    this.taskQueueSize = taskQueueSize;
+  }
+
   @Bean
-  RestTemplate restTemplate() {
-    // Jackson 3에서도 교재의 final 필드 DTO를 읽을 수 있도록 설정한다.
-    JsonMapper mapper = JsonMapper.builder()
-      .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
-      .build();
-    RestTemplate restTemplate = new RestTemplate();
-    restTemplate.getMessageConverters().add(0, new JacksonJsonHttpMessageConverter(mapper));
-    return restTemplate;
+  public Scheduler publishEventScheduler() {
+    LOG.info("Creates a messagingScheduler with connectionPoolSize = {}", threadPoolSize);
+    return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "publish-pool");
   }
 
   public static void main(String[] args) {

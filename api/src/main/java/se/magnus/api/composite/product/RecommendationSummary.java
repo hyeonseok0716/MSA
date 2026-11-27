@@ -37,8 +37,19 @@ public class RecommendationSummary {
     return content;
   }
 
-  public void setRecommendationId(int recommendationId) { this.recommendationId = recommendationId; }
-  public void setAuthor(String author) { this.author = author; }
-  public void setRate(int rate) { this.rate = rate; }
-  public void setContent(String content) { this.content = content; }
+  public void setRecommendationId(int recommendationId) {
+    this.recommendationId = recommendationId;
+  }
+
+  public void setAuthor(String author) {
+    this.author = author;
+  }
+
+  public void setRate(int rate) {
+    this.rate = rate;
+  }
+
+  public void setContent(String content) {
+    this.content = content;
+  }
 }
