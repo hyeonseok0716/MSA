@@ -28,7 +28,7 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
 
   @BeforeEach
   void setupDb() {
-    repository.deleteAll();
+    repository.deleteAll().block();
   }
   
   @Test
@@ -40,7 +40,7 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
     postAndVerifyRecommendation(productId, 2, OK);
     postAndVerifyRecommendation(productId, 3, OK);
 
-    assertEquals(3, repository.findByProductId(productId).size());
+    assertEquals(3, repository.findByProductId(productId).collectList().block().size());
 
     getAndVerifyRecommendationsByProductId(productId, OK)
       .jsonPath("$.length()").isEqualTo(3)
@@ -58,13 +58,13 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
       .jsonPath("$.productId").isEqualTo(productId)
       .jsonPath("$.recommendationId").isEqualTo(recommendationId);
 
-    assertEquals(1, repository.count());
+    assertEquals(1, repository.count().block());
 
     postAndVerifyRecommendation(productId, recommendationId, UNPROCESSABLE_CONTENT)
       .jsonPath("$.path").isEqualTo("/recommendation")
       .jsonPath("$.message").isEqualTo("Duplicate key, Product Id: 1, Recommendation Id:1");
 
-    assertEquals(1, repository.count());
+    assertEquals(1, repository.count().block());
   }
 
   @Test
@@ -74,10 +74,10 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
     int recommendationId = 1;
 
     postAndVerifyRecommendation(productId, recommendationId, OK);
-    assertEquals(1, repository.findByProductId(productId).size());
+    assertEquals(1, repository.findByProductId(productId).collectList().block().size());
 
     deleteAndVerifyRecommendationsByProductId(productId, OK);
-    assertEquals(0, repository.findByProductId(productId).size());
+    assertEquals(0, repository.findByProductId(productId).collectList().block().size());
 
     deleteAndVerifyRecommendationsByProductId(productId, OK);
   }
