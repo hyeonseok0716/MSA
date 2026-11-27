@@ -13,7 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @AutoConfigureWebTestClient
-class RecommendationServiceApplicationTests {
+class RecommendationServiceApplicationTests extends MongoDbTestBase {
 
   @Autowired private WebTestClient client;
 

@@ -31,6 +31,11 @@ public class ProductCompositeServiceApplication {
   @Value("${api.common.contact.url}")     String apiContactUrl;
   @Value("${api.common.contact.email}")   String apiContactEmail;
 
+  /**
+  * Available at http://$HOST:$PORT/openapi/swagger-ui.html
+  *
+  * @return the common OpenAPI documentation
+  */
   @Bean
   public OpenAPI getOpenApiDocumentation() {
     return new OpenAPI()
@@ -52,6 +57,7 @@ public class ProductCompositeServiceApplication {
 
   @Bean
   RestTemplate restTemplate() {
+    // Jackson 3에서도 교재의 final 필드 DTO를 읽을 수 있도록 설정한다.
     JsonMapper mapper = JsonMapper.builder()
       .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
       .build();

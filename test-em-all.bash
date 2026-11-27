@@ -4,7 +4,6 @@
 #
 #   HOST=localhost PORT=8080 bash test-em-all.bash
 #
-
 : ${HOST=localhost}
 : ${PORT=8080}
 : ${PROD_ID_REVS_RECS=1}
@@ -29,9 +28,9 @@ function assertCurl() {
       echo "Test OK (HTTP Code: $httpCode, $RESPONSE)"
     fi
   else
-    echo "Test FAILED, EXPECTED HTTP Code: $expectedHttpCode, GOT: $httpCode, WILL ABORT!"
-    echo "- Failing command: $curlCmd"
-    echo "- Response Body: $RESPONSE"
+    echo  "Test FAILED, EXPECTED HTTP Code: $expectedHttpCode, GOT: $httpCode, WILL ABORT!"
+    echo  "- Failing command: $curlCmd"
+    echo  "- Response Body: $RESPONSE"
     exit 1
   fi
 }
@@ -51,27 +50,22 @@ function assertEqual() {
 }
 
 function testUrl() {
-
   url=$@
-
   if $url -ks -f -o /dev/null
   then
     return 0
   else
     return 1
-  fi
+  fi;
 }
 
 function waitForService() {
-
   url=$@
   echo -n "Wait for: $url... "
   n=0
-
   until testUrl $url
   do
     n=$((n + 1))
-
     if [[ $n == 100 ]]
     then
       echo " Give up"
@@ -81,86 +75,74 @@ function waitForService() {
       echo -n ", retry #$n "
     fi
   done
-
   echo "DONE, continues..."
 }
 
 set -e
 
-echo "Start Tests:" "$(date)"
+echo "Start Tests:" `date`
+
 echo "HOST=${HOST}"
 echo "PORT=${PORT}"
 
-# start 인수가 있으면 테스트 환경 재시작
 if [[ $@ == *"start"* ]]
 then
   echo "Restarting the test environment..."
-
-  echo '$ docker compose down --remove-orphans'
+  echo "$ docker compose down --remove-orphans"
   docker compose down --remove-orphans
-
-  echo '$ docker compose up -d'
+  echo "$ docker compose up -d"
   docker compose up -d
 fi
 
-# 서비스가 준비될 때까지 대기
 waitForService curl http://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS
 
-# 정상 조회: 추천 3개, 리뷰 3개
-assertCurl 200 "curl -s http://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS"
+# Verify that a normal request works, expect three recommendations and three reviews
+assertCurl 200 "curl http://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS -s"
 assertEqual $PROD_ID_REVS_RECS $(echo $RESPONSE | jq .productId)
 assertEqual 3 $(echo $RESPONSE | jq ".recommendations | length")
 assertEqual 3 $(echo $RESPONSE | jq ".reviews | length")
 
-# 존재하지 않는 상품: 404
-assertCurl 404 "curl -s http://$HOST:$PORT/product-composite/$PROD_ID_NOT_FOUND"
-assertEqual "No product found for productId: $PROD_ID_NOT_FOUND" \
-  "$(echo $RESPONSE | jq -r .message)"
+# Verify that a 404 (Not Found) error is returned for a non-existing productId ($PROD_ID_NOT_FOUND)
+assertCurl 404 "curl http://$HOST:$PORT/product-composite/$PROD_ID_NOT_FOUND -s"
+assertEqual "No product found for productId: $PROD_ID_NOT_FOUND" "$(echo $RESPONSE | jq -r .message)"
 
-# 추천 없는 상품: 추천 0개, 리뷰 3개
-assertCurl 200 "curl -s http://$HOST:$PORT/product-composite/$PROD_ID_NO_RECS"
+# Verify that no recommendations are returned for productId $PROD_ID_NO_RECS
+assertCurl 200 "curl http://$HOST:$PORT/product-composite/$PROD_ID_NO_RECS -s"
 assertEqual $PROD_ID_NO_RECS $(echo $RESPONSE | jq .productId)
 assertEqual 0 $(echo $RESPONSE | jq ".recommendations | length")
 assertEqual 3 $(echo $RESPONSE | jq ".reviews | length")
 
-# 리뷰 없는 상품: 추천 3개, 리뷰 0개
-assertCurl 200 "curl -s http://$HOST:$PORT/product-composite/$PROD_ID_NO_REVS"
+# Verify that no reviews are returned for productId $PROD_ID_NO_REVS
+assertCurl 200 "curl http://$HOST:$PORT/product-composite/$PROD_ID_NO_REVS -s"
 assertEqual $PROD_ID_NO_REVS $(echo $RESPONSE | jq .productId)
 assertEqual 3 $(echo $RESPONSE | jq ".recommendations | length")
 assertEqual 0 $(echo $RESPONSE | jq ".reviews | length")
 
-# 음수 상품 ID: 422
-assertCurl 422 "curl -s http://$HOST:$PORT/product-composite/-1"
-assertEqual "\"Invalid productId: -1\"" \
-  "$(echo $RESPONSE | jq .message)"
+# Verify that a 422 (Unprocessable Entity) error is returned for a productId that is out of range (-1)
+assertCurl 422 "curl http://$HOST:$PORT/product-composite/-1 -s"
+assertEqual "\"Invalid productId: -1\"" "$(echo $RESPONSE | jq .message)"
 
-# 숫자가 아닌 상품 ID: 400
-assertCurl 400 "curl -s http://$HOST:$PORT/product-composite/invalidProductId"
-assertEqual "\"Type mismatch.\"" \
-  "$(echo $RESPONSE | jq .message)"
+# Verify that a 400 (Bad Request) error error is returned for a productId that is not a number, i.e. invalid format
+assertCurl 400 "curl http://$HOST:$PORT/product-composite/invalidProductId -s"
+assertEqual "\"Type mismatch.\"" "$(echo $RESPONSE | jq .message)"
 
-# 5장: Swagger와 OpenAPI URL 접근 확인
+# Verify access to Swagger and OpenAPI URLs
 echo "Swagger/OpenAPI tests"
-
-assertCurl 302 "curl -s http://$HOST:$PORT/openapi/swagger-ui.html"
+assertCurl 302 "curl -s  http://$HOST:$PORT/openapi/swagger-ui.html"
 assertCurl 200 "curl -sL http://$HOST:$PORT/openapi/swagger-ui.html"
-assertCurl 200 "curl -s http://$HOST:$PORT/openapi/swagger-ui/index.html"
-assertCurl 200 "curl -s http://$HOST:$PORT/openapi/swagger-ui/oauth2-redirect.html"
-
-assertCurl 200 "curl -s http://$HOST:$PORT/openapi/v3/api-docs"
+assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/swagger-ui/index.html"
+# Verify the redirect URL
+assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/swagger-ui/oauth2-redirect.html"
+assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs"
 assertEqual "3.1.0" "$(echo $RESPONSE | jq -r .openapi)"
-assertEqual "http://$HOST:$PORT" \
-  "$(echo $RESPONSE | jq -r '.servers[0].url')"
+assertEqual "http://$HOST:$PORT" "$(echo $RESPONSE | jq -r '.servers[0].url')"
+assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs.yaml"
 
-assertCurl 200 "curl -s http://$HOST:$PORT/openapi/v3/api-docs.yaml"
-
-# stop 인수가 있으면 테스트 환경 종료
 if [[ $@ == *"stop"* ]]
 then
-  echo "We are done, stopping the test environment..."
-
-  echo '$ docker compose down'
-  docker compose down
+    echo "We are done, stopping the test environment..."
+    echo "$ docker compose down"
+    docker compose down
 fi
 
-echo "End, all tests OK:" "$(date)"
+echo "End, all tests OK:" `date`
