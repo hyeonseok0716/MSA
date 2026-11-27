@@ -10,6 +10,10 @@ public class ProductAggregate {
   private final List<ReviewSummary> reviews;
   private final ServiceAddresses serviceAddresses;
 
+  public ProductAggregate() {
+    this(0, null, 0, null, null, null);
+  }
+
   public ProductAggregate(
     int productId,
     String name,

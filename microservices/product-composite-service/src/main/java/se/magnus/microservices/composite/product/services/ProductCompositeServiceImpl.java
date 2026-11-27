@@ -2,7 +2,9 @@ package se.magnus.microservices.composite.product.services;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import se.magnus.api.composite.product.*;
 import se.magnus.api.core.product.Product;
 import se.magnus.api.core.recommendation.Recommendation;
@@ -21,6 +23,17 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     
     this.serviceUtil = serviceUtil;
     this.integration = integration;
+  }
+
+  // 그림 6.6에서는 문서만 확인한다. 생성·삭제 처리는 다음 단계에서 구현한다.
+  @Override
+  public void createProduct(ProductAggregate body) {
+    throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "복합 생성 처리는 다음 단계에서 구현합니다.");
+  }
+
+  @Override
+  public void deleteProduct(int productId) {
+    throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "복합 삭제 처리는 다음 단계에서 구현합니다.");
   }
 
   @Override

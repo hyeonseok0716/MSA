@@ -126,4 +126,35 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
       return new ArrayList<>();
     }
   }
+
+  // 그림 6.6 문서를 실행하기 위한 자리 구현. 실제 연동은 다음 단계에서 추가한다.
+  @Override
+  public Product createProduct(Product body) {
+    throw new UnsupportedOperationException("생성 연동은 다음 단계에서 구현합니다.");
+  }
+
+  @Override
+  public void deleteProduct(int productId) {
+    throw new UnsupportedOperationException("삭제 연동은 다음 단계에서 구현합니다.");
+  }
+
+  @Override
+  public Recommendation createRecommendation(Recommendation body) {
+    throw new UnsupportedOperationException("생성 연동은 다음 단계에서 구현합니다.");
+  }
+
+  @Override
+  public void deleteRecommendations(int productId) {
+    throw new UnsupportedOperationException("삭제 연동은 다음 단계에서 구현합니다.");
+  }
+
+  @Override
+  public Review createReview(Review body) {
+    throw new UnsupportedOperationException("생성 연동은 다음 단계에서 구현합니다.");
+  }
+
+  @Override
+  public void deleteReviews(int productId) {
+    throw new UnsupportedOperationException("삭제 연동은 다음 단계에서 구현합니다.");
+  }
 }
